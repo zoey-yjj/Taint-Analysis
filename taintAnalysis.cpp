@@ -32,6 +32,19 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    // 1.Extract Function main from Module M
+    Function *F = M->getFunction("main");
+    
+    // 2.Define analysisMap as a mapping of basic block labels to empty set (of instructions):
+    std::map<std::string, std::set<std::string>> analysisMap;
+    for (auto &BB: *F) {
+        std::set<std::string> emptySet;
+    	analysisMap[getSimpleNodeLabel(&BB)] = emptySet;
+    }
+
+    // 2.1 Define succMap to store successor and the set of taint variables stored for the successor
+    std::map<std::string, std::set<std::string>> succMap;
+
 }
 
 
