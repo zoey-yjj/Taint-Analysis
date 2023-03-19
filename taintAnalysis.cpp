@@ -45,6 +45,17 @@ int main(int argc, char **argv) {
     // 2.1 Define succMap to store successor and the set of taint variables stored for the successor
     std::map<std::string, std::set<std::string>> succMap;
 
+    // 3. Traversing the CFG in Depth First Order
+    std::stack<std::pair<BasicBlock*, std::set<std::string> > > traversalStack;
+    BasicBlock* entryBB = &F->getEntryBlock();
+    std::set<std::string> emptySet;
+    std::pair<BasicBlock*, std::set<std::string> > analysisNode = std::make_pair(entryBB, emptySet);
+    traversalStack.push(analysisNode); 
+
+    // 4. while the stack is not empty we pop the top analysisNode
+    while(!traversalStack.empty()) {}
+
+    return 0;
 }
 
 
