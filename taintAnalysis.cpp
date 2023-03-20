@@ -98,6 +98,20 @@ std::set<std::string> findTaintVars(BasicBlock* BB, std::set<std::string> taintV
         // Other variables will get taint when they store value from taint variable
         if (isa<StoreInst>(I)) {
 
+            // Load Arg1 to an instance of the class Value 
+            Value* v = I.getOperand(1);
+            
+            // Convert the instance of Value class to a variable
+            Instruction* var = dyn_cast<Instruction>(v);
+
+            // if operand 1 name is source, some value or variable is stored to source, add source to updatedTaintVars
+            // check operand 0 is taint or not, if so, when store value from operand 0 to operand 1, operand 1 is taint
+            if (I.getOperand(1)->getName() == expectedName || isTaint(I.getOperand(0), updatedTaintVars, expectedName)) {
+                updatedTaintVars.insert(var->getName().str());	// Gen: operand 2, var is added to updatedTaintVars
+            } else {
+                updatedTaintVars.erase(var->getName().str());
+            }
+
         // when instruction is allocated
         } else if (isa<AllocaInst>(I)) {
 
