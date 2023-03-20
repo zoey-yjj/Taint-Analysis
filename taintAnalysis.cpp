@@ -115,8 +115,15 @@ std::set<std::string> findTaintVars(BasicBlock* BB, std::set<std::string> taintV
         // when instruction is allocated
         } else if (isa<AllocaInst>(I)) {
 
-        // when instruction is allocated
-        } else if (isa<AllocaInst>(I)) {
+            // if source is allocated, include in taint set and start tracing
+            if (I.getName() == expectedName) {
+                updatedTaintVars.insert(I.getName().str());	// Gen
+            } else {
+                updatedTaintVars.erase(I.getName().str());
+            }
+
+        // when instruction is load
+        } else if (isa<LoadInst>(I)) {
 
         // when instruction is binary operator
         } else if (isa<llvm::BinaryOperator>(I)) {
