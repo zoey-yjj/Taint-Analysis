@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+
 std::set<std::string> findTaintVars(BasicBlock* BB, std::set<std::string> taintVars) {
     // updatedTaintVars is first initialized to the current list of taint variables 
     std::set<std::string> updatedTaintVars(taintVars);
@@ -93,7 +94,22 @@ std::set<std::string> findTaintVars(BasicBlock* BB, std::set<std::string> taintV
     // Loop through instructions in BB
     for (auto &I: *BB) {
 
+        // Check if an Instruction is of the type Store Instruction
+        // Other variables will get taint when they store value from taint variable
+        if (isa<StoreInst>(I)) {
+
+        // when instruction is allocated
+        } else if (isa<AllocaInst>(I)) {
+
+        // when instruction is allocated
+        } else if (isa<AllocaInst>(I)) {
+
+        // when instruction is binary operator
+        } else if (isa<llvm::BinaryOperator>(I)) {
+
+        }
     }
+    return updatedTaintVars;
 }
 
 
