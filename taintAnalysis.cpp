@@ -16,6 +16,7 @@
 using namespace llvm; // mainly use construct from llvm
 
 
+std::set<std::string> findTaintVars(BasicBlock* BB, std::set<std::string> taintVars);
 std::set<std::string> intersect_sets(std::set<std::string> A, std::set<std::string> B);
 std::set<std::string> union_sets(std::set<std::string> A, std::set<std::string> B);
 
@@ -53,9 +54,46 @@ int main(int argc, char **argv) {
     traversalStack.push(analysisNode); 
 
     // 4. while the stack is not empty we pop the top analysisNode
-    while(!traversalStack.empty()) {}
+    while(!traversalStack.empty()) {
+        // Pop the top analysis node from stack
+        std::pair<BasicBlock*, std::set<std::string> > analysisNode = traversalStack.top();
+       	traversalStack.pop();
+       	
+	    // Extract the basic block and the set of taint variables from  analysisNode
+	    BasicBlock* BB = analysisNode.first; 
+      	std::set<std::string> entryTaintVars = analysisNode.second; 
+
+        // Extract updatedTaintVars (The list of taint variables after BB) from BB and taintVars.
+        // By processing each instruction in BasicBlock, get to know what are the variables get taint in a particular BasicBlock
+        std::set<std::string> updatedTaintVars = findTaintVars(BB, entryTaintVars); 
+        
+        // Update the analysis of node BB in the MAP to the union of currently stored taintVars and the generated updatedTaintVars
+        std::set<std::string> exitTaintVars;
+
+        if (analysisMap[getSimpleNodeLabel(BB)].empty()) {
+        	exitTaintVars = updatedTaintVars;
+        } else {
+        	exitTaintVars = union_sets(analysisMap[getSimpleNodeLabel(BB)], updatedTaintVars); 
+        }
+
+    	analysisMap[getSimpleNodeLabel(BB)] = exitTaintVars;
+
+    }
 
     return 0;
+}
+
+std::set<std::string> findTaintVars(BasicBlock* BB, std::set<std::string> taintVars) {
+    // updatedTaintVars is first initialized to the current list of taint variables 
+    std::set<std::string> updatedTaintVars(taintVars);
+
+    // trace the taint values by variable name source
+    StringRef expectedName = "source"; 
+    
+    // Loop through instructions in BB
+    for (auto &I: *BB) {
+
+    }
 }
 
 
