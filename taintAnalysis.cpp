@@ -138,6 +138,17 @@ std::set<std::string> findTaintVars(BasicBlock* BB, std::set<std::string> taintV
         // when instruction is binary operator
         } else if (isa<llvm::BinaryOperator>(I)) {
 
+            // use function getInstructionLabel to obtain the label 
+            std::string name = getInstructionLabel(&I);
+            bool left = isTaint(I.getOperand(0), updatedTaintVars, expectedName);
+		    bool right = isTaint(I.getOperand(1), updatedTaintVars, expectedName);
+
+            // if the label is loaded with taint variable, the lebal is also taint
+            if (left || right) {
+                updatedTaintVars.insert(name);	// Gen
+            } else {
+                updatedTaintVars.erase(name);	
+            }
         }
     }
     return updatedTaintVars;
