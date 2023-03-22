@@ -166,3 +166,18 @@ std::set<std::string> union_sets(std::set<std::string> A, std::set<std::string> 
     A.insert(B.cbegin(), B.cend());
     return A;
 }
+
+bool isTaint(llvm::Value *val, std::set<std::string> init, StringRef expectedName) {
+}
+
+
+std::string getSimpleNodeLabel(const BasicBlock *Node) {
+    if (!Node->getName().empty()){
+	    errs()<<Node->getName().str();
+        return Node->getName().str();
+    }
+    std::string Str;
+    raw_string_ostream OS(Str);
+    Node->printAsOperand(OS, false);
+    return OS.str();
+}
