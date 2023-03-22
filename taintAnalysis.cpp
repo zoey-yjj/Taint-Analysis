@@ -181,3 +181,20 @@ std::string getSimpleNodeLabel(const BasicBlock *Node) {
     Node->printAsOperand(OS, false);
     return OS.str();
 }
+
+
+// get the string of instruction I name or lebal
+std::string getInstructionLabel(const Instruction *I) {
+
+    // if instruction I has name
+    if (!I->getName().empty()) {
+	    errs()<<I->getName().str();
+        return I->getName().str();
+    }
+
+    // instruction I does not have name
+    std::string Str;
+    raw_string_ostream OS(Str);
+    I->printAsOperand(OS, false);
+    return OS.str();
+}
