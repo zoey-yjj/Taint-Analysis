@@ -168,6 +168,32 @@ std::set<std::string> union_sets(std::set<std::string> A, std::set<std::string> 
 }
 
 bool isTaint(llvm::Value *val, std::set<std::string> init, StringRef expectedName) {
+
+    // when the var name is "source", the instruction is 
+    if (val->getName() == expectedName) {
+	    return true;
+
+    // when var is load instruction, feed operand 0 to isTaint function again for checking
+	} else if (isa<llvm::LoadInst>(val)) {
+	    llvm::LoadInst *inst = dyn_cast<llvm::LoadInst>(val);
+	    return isTaint(inst->getOperand(0), init, expectedName);
+
+    // when var is binary operator, either one of the operand is taint, the variable is taint
+	} else if (isa<llvm::BinaryOperator>(val)) {
+	    llvm::BinaryOperator *inst = dyn_cast<llvm::BinaryOperator>(val);
+		bool left = isTaint(inst->getOperand(0), init, expectedName);
+		bool right = isTaint(inst->getOperand(1), init, expectedName);
+	    return left || right;
+
+    // when var is alloca instruction, check whether it is included in init set, which contains all taint variables
+    } else if (llvm::isa<llvm::AllocaInst>(val)) { 
+        llvm::Instruction *inst = dyn_cast<llvm::Instruction>(val);
+        return (init.count(inst->getName()) != 0);
+
+    // the variable is not taint
+    } else {
+        return false;
+    }
 }
 
 
