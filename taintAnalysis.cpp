@@ -78,6 +78,14 @@ int main(int argc, char **argv) {
 
     	analysisMap[getSimpleNodeLabel(BB)] = exitTaintVars;
 
+        const TerminatorInst *TInst = BB->getTerminator();
+	    int NSucc = TInst->getNumSuccessors();
+ 
+        for (int i = 0; i < NSucc; ++i) {
+            std::pair<BasicBlock*, std::set<std::string> > succAnalysisNode = std::make_pair(Succ, exitTaintVars);
+            traversalStack.push(succAnalysisNode); 
+            succMap[getSimpleNodeLabel(Succ)] = exitTaintVars;
+        }
     }
 
     return 0;
