@@ -81,12 +81,28 @@ int main(int argc, char **argv) {
         const TerminatorInst *TInst = BB->getTerminator();
 	    int NSucc = TInst->getNumSuccessors();
  
+        // Only add successor nodes to the stack if the union of the new taint variables for the successor node is different from 
+        // the currently stored list of taint variables for the successor node.
         for (int i = 0; i < NSucc; ++i) {
-            std::pair<BasicBlock*, std::set<std::string> > succAnalysisNode = std::make_pair(Succ, exitTaintVars);
-            traversalStack.push(succAnalysisNode); 
-            succMap[getSimpleNodeLabel(Succ)] = exitTaintVars;
+
+            // Add the current stored analysis for a successor node
+            BasicBlock *Succ = TInst->getSuccessor(i);    
+            bool hasNew = false;
+            std::set<std::string> succSet = succMap[getSimpleNodeLabel(Succ)];
+
+            for (std::string var : exitTaintVars) {
+                if (succSet.count(var) == 0) {
+                    hasNew = true;
+                    break;
+                }
+            }
+
+            if (hasNew) {
+                std::pair<BasicBlock*, std::set<std::string> > succAnalysisNode = std::make_pair(Succ, exitTaintVars);
+                traversalStack.push(succAnalysisNode); 
+                succMap[getSimpleNodeLabel(Succ)] = exitTaintVars;
+            }
         }
-    }
 
     return 0;
 }
