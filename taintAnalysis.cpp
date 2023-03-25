@@ -16,12 +16,17 @@
 using namespace llvm; // mainly use construct from llvm
 
 
-std::set<std::string> findTaintVars(BasicBlock* BB, std::set<std::string> taintVars);
+std::set<std::string> findTaintVars(BasicBlock* BB, std::set<std::string> initializedVars);
 std::set<std::string> intersect_sets(std::set<std::string> A, std::set<std::string> B);
 std::set<std::string> union_sets(std::set<std::string> A, std::set<std::string> B);
+void printTaintMap(std::map<std::string, std::set<std::string>> analysisMap);
+bool isTaint(llvm::Value *val, std::set<std::string> init, StringRef expectedName);
+std::string getSimpleNodeLabel(const BasicBlock *Node);
+std::string getInstructionLabel(const Instruction *I);
 
 
 int main(int argc, char **argv) {
+
     // Read the IR file.
     LLVMContext &Context = getGlobalContext(); 
     SMDiagnostic Err;
@@ -78,6 +83,7 @@ int main(int argc, char **argv) {
 
     	analysisMap[getSimpleNodeLabel(BB)] = exitTaintVars;
 
+        // Get successor nodes
         const TerminatorInst *TInst = BB->getTerminator();
 	    int NSucc = TInst->getNumSuccessors();
  
@@ -103,6 +109,9 @@ int main(int argc, char **argv) {
                 succMap[getSimpleNodeLabel(Succ)] = exitTaintVars;
             }
         }
+    }
+
+    printTaintMap(analysisMap);
 
     return 0;
 }
@@ -190,6 +199,23 @@ std::set<std::string> union_sets(std::set<std::string> A, std::set<std::string> 
     A.insert(B.cbegin(), B.cend());
     return A;
 }
+
+
+void printTaintMap(std::map<std::string, std::set<std::string>> analysisMap) {
+	errs() << "PRINTING TAINT MAP:\n\n";
+    for (auto& row : analysisMap) {
+    	std::set<std::string> taintVars = row.second;
+    	std::string BBLabel = row.first;
+        const char* sep = "";
+    	errs() << BBLabel << ": { ";
+    	for (std::string var : taintVars) {
+    		errs() << sep << var;
+            sep = ", ";
+    	}
+    	errs() << " }\n\n";
+    }
+} 
+
 
 bool isTaint(llvm::Value *val, std::set<std::string> init, StringRef expectedName) {
 
